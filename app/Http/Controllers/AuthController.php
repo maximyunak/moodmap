@@ -20,7 +20,7 @@ class AuthController extends Controller
         ]);
 
         if($validator->fails()) {
-            return $this->errors(message: $validator->errors());
+            return $this->errors(errors: $validator->errors());
         }
 
         $image = $request->file('avatar');
@@ -59,7 +59,7 @@ class AuthController extends Controller
         ]);
 
         if($validator->fails()) {
-            return $this->errors(message: $validator->errors());
+            return $this->errors(errors: $validator->errors());
         }
 
         if (!auth()->attempt($validator->validated())) {
