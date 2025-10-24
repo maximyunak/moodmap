@@ -13,7 +13,14 @@ return new class extends Migration
     {
         Schema::create('feedback', function (Blueprint $table) {
             $table->id();
+            $table->string("emotion");
+            $table->string("comment");
+            $table->string("status");
+
             $table->timestamps();
+
+            $table->foreignId("user_id")->constrained("users")->onDelete("cascade");
+            $table->foreignId('location_id')->constrained("locations")->onDelete('cascade');
         });
     }
 
