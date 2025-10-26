@@ -11,12 +11,12 @@ class AuthController extends Controller
 
     public function register(Request $request) {
         $validator = validator($request->all(), [
-            "email" => "required",
-            "password" => "required",
+            "email" => "required|email|unique:users,email",
+            "password" => "required|min:3|regex:/^(?=.*[A-ZА-ЯЁ])(?=.*[a-zа-яё])(?=.*\d).*$/",
             "avatar" => "nullable|image|mimes:jpeg,png,jpg|max:4096",
-            "first_name" => "required",
-            "last_name" => "required",
-            "patronymic" => "nullable",
+            "first_name" => "required|regex:/^[А-ЯЁ][а-яА-ЯёЁ]*$/u",
+            "last_name" => "required|regex:/^[А-ЯЁ][а-яА-ЯёЁ]*$/u",
+            "patronymic" => "nullable|regex:/^[А-ЯЁ][а-яА-ЯёЁ]*$/u",
         ]);
 
         if($validator->fails()) {
