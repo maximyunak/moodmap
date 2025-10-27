@@ -7,6 +7,14 @@ use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
+    public function index()
+    {
+        $locations = Location::all();
+        return response()->json(data: [
+            "data" => $locations
+        ], status: 200);
+    }
+
     public function create(Request $request)
     {
         $validator = validator($request->all(), [
@@ -15,7 +23,7 @@ class LocationController extends Controller
             "longitude" => "required",
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->errors(errors: $validator->errors());
         }
 
@@ -40,7 +48,7 @@ class LocationController extends Controller
             "longitude" => "nullable",
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->errors(errors: $validator->errors());
         }
 
