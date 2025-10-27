@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\FeedbackResourse;
 use App\Models\Feedback;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -39,27 +40,7 @@ class FeedbackController extends Controller
 
         return response()->json(data: [
             "message" => "Successfully created feedback",
-            "data" => [
-                "id" => $feedback->id,
-                "user" => [
-                    "id" => $feedback->user->id,
-                    "first_name" => $feedback->user->first_name,
-                    "last_name" => $feedback->user->last_name,
-                    "patronymic" => $feedback->user->patronymic,
-                    "avatar" => $feedback->user->avatar,
-                ],
-                "location" => [
-                    "id" => $feedback->location->id,
-                    "name" => $feedback->location->name,
-                    "longitude" => $feedback->location->longitude,
-                    "latitude" => $feedback->location->latitude,
-                ],
-                "emotion" => $feedback->emotion,
-                "comment" => $feedback->comment,
-                "status" => $feedback->status,
-                "created_at" => $feedback->created_at,
-                "updated_at" => $feedback->updated_at,
-            ]
+            "data" => FeedbackResourse::make($feedback)
         ], status: 200);
     }
 
@@ -120,28 +101,43 @@ class FeedbackController extends Controller
 
         return response()->json(data: [
             "message" => "Successfully updated feedback",
-            "data" => [
-                "id" => $feedback->id,
-                "user" => [
-                    "id" => $feedback->user->id,
-                    "first_name" => $feedback->user->first_name,
-                    "last_name" => $feedback->user->last_name,
-                    "patronymic" => $feedback->user->patronymic,
-                    "avatar" => $feedback->user->avatar,
-                ],
-                "location" => [
-                    "id" => $feedback->location->id,
-                    "name" => $feedback->location->name,
-                    "longitude" => $feedback->location->longitude,
-                    "latitude" => $feedback->location->latitude,
-                ],
-                "emotion" => $feedback->emotion,
-                "comment" => $feedback->comment,
-                "status" => $feedback->status,
-                "created_at" => $feedback->created_at,
-                "updated_at" => $feedback->updated_at,
-            ]
+            "data" =>
+                FeedbackResourse::make($feedback)
         ], status: 200);
+    }
 
+    public function my()
+    {
+        $feedbacks = Feedback::where("user_id", auth()->id())->get();
+
+        return response()->json(data: [
+            "data"=> $feedbacks
+        ], status: 200);
+    }
+
+    public function created()
+    {
+        $feedbacks = Feedback::where("status", "CREATED")->get();
+        $feedbacks->load(["location", "user"]);
+
+        return response()->json(data: [
+            "data" => FeedbackResourse::collection($feedbacks)
+        ], status: 200);
+    }
+
+    public function status(Feedback $feedback, Request $request) {
+        $validator = validator($request->all(), [
+            "status" => "required|string|in:APPROVED,DECLINED",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errors(errors: $validator->errors());
+        }
+
+        $feedback->update($validator->validated());
+        return response()->json(data: [
+            "message" => "Successfully updated feedback",
+            "data" => FeedbackResourse::make($feedback)
+        ]);
     }
 }

@@ -7,23 +7,27 @@ use App\Http\Middleware\CheckAdmin;
 use Illuminate\Support\Facades\Route;
 
 // авторизация
-Route::group(["prefix"=>"auth"], function(){
+Route::group(["prefix" => "auth"], function () {
     Route::post("register", [AuthController::class, "register"]);
     Route::post("login", [AuthController::class, "login"]);
 });
 
 // только авторизованным
-Route::group(["middleware"=>[\App\Http\Middleware\CheckAuth::class]], function(){
+Route::group(["middleware" => [\App\Http\Middleware\CheckAuth::class]], function () {
     Route::post("/auth/logout", [AuthController::class, "logout"]);
 
-    Route::get("/feedbacks/my");
+    Route::get("/feedbacks/my", [FeedbackController::class, "my"]);
     Route::post("/feedbacks", [FeedbackController::class, "store"]);
     Route::patch("/feedbacks/{feedback}", [FeedbackController::class, "update"]);
 
-    Route::group(["middleware"=>[CheckAdmin::class]], function(){
+    Route::group(["middleware" => [CheckAdmin::class]], function () {
+//        локации
         Route::post("/locations", [LocationController::class, "create"]);
         Route::patch("/locations/{location}", [LocationController::class, "update"]);
         Route::delete("/locations/{location}", [LocationController::class, "destroy"]);
+//        отзывы
+        Route::get("/feedbacks/created", [FeedbackController::class, "created"]);
+        Route::patch("/feedbacks/{feedback}/status", [FeedbackController::class, "status"]);
     });
 });
 
