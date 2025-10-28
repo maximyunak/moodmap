@@ -15,4 +15,5 @@ abstract class Controller
         }
         return response()->json($response, $code);
     }
+
 }

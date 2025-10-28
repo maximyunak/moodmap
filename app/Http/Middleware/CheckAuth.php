@@ -17,8 +17,11 @@ class CheckAuth
     public function handle(Request $request, Closure $next): Response
     {
         $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json(data:["message" => "No rights? :("], status: 403);
+        }
         $user = User::where("token", $token)->first();
-        if (!$user) {
+        if (!$user ) {
             return response()->json(data:["message" => "No rights? :("], status: 403);
         }
         auth()->login($user);

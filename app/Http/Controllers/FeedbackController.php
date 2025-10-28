@@ -53,7 +53,7 @@ class FeedbackController extends Controller
 
     public function show(Feedback $feedback, Request $request)
     {
-        $feedback->load(["location", "user"]);
+//        $feedback->load(["location", "user"]);
 
         $data = [
             "user" => [
@@ -76,9 +76,11 @@ class FeedbackController extends Controller
         ];
 
         $token = $request->bearerToken();
-        $user = User::where("token", $token)->first();
-        if ($feedback->user->id === $user->id) {
-            $data["status"] = $feedback->status;
+        if ($token) {
+            $user = User::where("token", $token)->first();
+            if ($user && $feedback->user->id === $user->id) {
+                $data["status"] = $feedback->status;
+            }
         }
 
         return response()->json(data: [
