@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\FeedbackResourse;
+use App\Http\Resources\FeedbackSimpleResourse;
 use App\Models\Feedback;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -11,11 +12,17 @@ class FeedbackController extends Controller
 {
     public function index(Request $request)
     {
-//        $feedbacks = Feedback::where("status", "APPROVED")->where("location_id", $request->query("location_id"))->paginate(10);
-        $feedbacks = Feedback::where("status", "CREATED")->paginate(10);
+        $feedbacks = Feedback::where("status", "APPROVED")
+            ->where("location_id", "like", "%" . $request->query("location_id"))
+            ->paginate(10);
 
         return response()->json(data: [
-            "data" => $feedbacks
+            "data" => [
+                "items" => FeedbackSimpleResourse::collection($feedbacks),
+                "current_page" => $feedbacks->currentPage(),
+                "total_pages" => $feedbacks->total(),
+                "items_per_page" => $feedbacks->perPage(),
+            ]
         ], status: 200);
     }
 
@@ -109,35 +116,10 @@ class FeedbackController extends Controller
     public function my()
     {
         $feedbacks = Feedback::where("user_id", auth()->id())->get();
-
-        return response()->json(data: [
-            "data"=> $feedbacks
-        ], status: 200);
-    }
-
-    public function created()
-    {
-        $feedbacks = Feedback::where("status", "CREATED")->get();
         $feedbacks->load(["location", "user"]);
 
         return response()->json(data: [
-            "data" => FeedbackResourse::collection($feedbacks)
+            "data" => FeedbackSimpleResourse::collection($feedbacks)
         ], status: 200);
-    }
-
-    public function status(Feedback $feedback, Request $request) {
-        $validator = validator($request->all(), [
-            "status" => "required|string|in:APPROVED,DECLINED",
-        ]);
-
-        if ($validator->fails()) {
-            return $this->errors(errors: $validator->errors());
-        }
-
-        $feedback->update($validator->validated());
-        return response()->json(data: [
-            "message" => "Successfully updated feedback",
-            "data" => FeedbackResourse::make($feedback)
-        ]);
     }
 }

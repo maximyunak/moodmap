@@ -26,8 +26,8 @@ Route::group(["middleware" => [\App\Http\Middleware\CheckAuth::class]], function
         Route::patch("/locations/{location}", [LocationController::class, "update"]);
         Route::delete("/locations/{location}", [LocationController::class, "destroy"]);
 //        отзывы
-        Route::get("/feedbacks/created", [FeedbackController::class, "created"]);
-        Route::patch("/feedbacks/{feedback}/status", [FeedbackController::class, "status"]);
+        Route::get("/feedbacks/created", [\App\Http\Controllers\AdminController::class, "index"]);
+        Route::patch("/feedbacks/{feedback}/status", [\App\Http\Controllers\AdminController::class, "update"]);
     });
 });
 
